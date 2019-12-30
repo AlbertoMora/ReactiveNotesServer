@@ -25,7 +25,7 @@ usersController.login = async (req, res) => {
     dbContext.user.findAll({
         attributes: ['id', 'hashed_password', 'acc_locked_until'],
         where: {
-            [Op.or]: [{ email: email }, { username: username }]
+            [dbContext.Sequelize.Op.or]: [{ email: email?email:null }, { username: username?username:null }]
         }
     })
         .then(async data => {
@@ -42,16 +42,16 @@ usersController.login = async (req, res) => {
             }
         })
         .catch(err => {
-            res.status(500).json({ "statusMsg": "An unexpected error has occurred. Please, contact our support team to get help." });
+            res.status(500).json({ "statusMsg": `An unexpected error has occurred. Please, contact our support team to get help. errDet: ${err}` });
         });
 }
 
 usersController.logout = (req, res) => {
     try {
-        res.session.destroy();
-        res.status(200).redirect('/users/login');
+        req.session.destroy();
+        res.status(200).json({"status":"ok", "statusMsg":"Session has been destroyed successfully."});
     } catch (e) {
-        res.json({ "status": "failed", "errDet": e });
+        res.status(500).json({ "status": "failed", "errDet": e });
     }
 }
 
