@@ -2,8 +2,7 @@
 # Edit at https://www.gitignore.io/?templates=node,react
 
 ### public data ###
-client/scripts/react-components/*
-!client/scripts/react-components/dist
+client/scripts/react-components/
 
 ### Node ###
 # Logs
