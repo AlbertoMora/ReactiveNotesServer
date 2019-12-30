@@ -28,7 +28,7 @@ usersController.login = async (req, res) => {
             [Op.or]: [{ email: email }, { username: username }]
         }
     })
-        .then( async data => {
+        .then(async data => {
             if (data.length > 0) {
                 const check = await argon.verify(data[0].hashed_password, pass)
                 if (check) {
@@ -74,11 +74,11 @@ usersController.createNewUser = async (req, res) => {
                 salt: generateRandomSalt()
             },
                 {
-                    fields: ['name','surname','email','username','hashed_password', 'sign_up_date', 'acc_locked_until', 'img_uri', 'salt']
+                    fields: ['name', 'surname', 'email', 'username', 'hashed_password', 'sign_up_date', 'acc_locked_until', 'img_uri', 'salt']
                 })
                 .then(user => {
                     res.status(200).json({
-                        "status":"OK",
+                        "status": "OK",
                         "userId": user.id
                     });
                 })
@@ -120,29 +120,32 @@ usersController.getUserById = async (req, res) => {
 }
 usersController.updateUserById = async (req, res) => {
     var userId = req.params.id;
-    
+    const { name, surname, email, username, pass, img_uri } = req.body;
+
 }
 usersController.deleteUserById = (req, res) => {
     var userId = req.params.id;
-    var sql = "DELETE FROM users WHERE id=@id";
-    var params = [];
     if (userId) {
-        connection.paramBuilder(params, "id", TYPES.Int, userId);
-        var callback = (result) => {
-            if (result && result.errorCode !== "EREQUEST") {
-                res.json({ "status": "OK" });
-            } else {
-                res.status(500).json({
-                    "error": "Ups! There was an internal server error, please try later",
-                    "details": result
+        dbContext.user.destroy({ where: { id: userId } })
+            .then(result => {
+                res.status(200).json({
+                    "status": "OK",
+                    "msg": "User has been deleted successfully."
                 });
-            }
-        }
-        connection.query(sql, params, callback);
+            })
+            .catch(err => {
+                res.status(500).json({
+                    status: "ERROR",
+                    errMsg: `An unexpected error has occurred. Please, contact our support team. Error Info: ${err}`,
+                    errInfo: err
+                });
+            });
     } else {
         res.status(500).json({ "error": "Invalid Format: Id is required to complete this request." });
     }
 }
+
+//Generic Funcs
 function checkEmail(email) {
     var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return regex.test(email);

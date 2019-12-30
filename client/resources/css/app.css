@@ -1,3 +1,16 @@
+@font-face{
+    font-family: 'CostaRica';
+    src:url("CostaRica.eot");
+    src:url("CostaRica.eot?#iefix") format("embedded-opentype"),
+      url("CostaRica.woff") format("woff"),
+      url("CostaRica.ttf") format("truetype"),
+      url("CostaRica.svg#CostaRica") format("svg"),
+      url("CostaRica.otf") format("otf"),
+      url("CostaRica.sfd") format("sfd");
+}
+.navbar-brand { 
+    font-family: 'CostaRica';
+}
 html, body { 
     min-height: 100%;
 }

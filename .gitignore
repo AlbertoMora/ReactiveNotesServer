@@ -124,3 +124,5 @@ thumb
 sketch
 
 # End of https://www.gitignore.io/api/node,react
+client/resources/css/OFL-FAQ.txt
+client/resources/css/OFL.txt
