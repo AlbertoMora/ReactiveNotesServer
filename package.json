@@ -5,13 +5,14 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "resolve-install": "rd /s /q node_modules && npx npm-force-resolutions && npm install"
   },
   "keywords": [],
   "author": "Alberto Mora",
   "license": "ISC",
   "dependencies": {
-    "@phc/argon2": "^1.0.9",
+    "connect-session-sequelize": "^6.0.0",
     "consign": "^0.1.6",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -24,7 +25,11 @@
     "sequelize": "^5.21.3",
     "tedious": "^6.6.5"
   },
+  "resolutions": {
+    "https-proxy-agent": "^3.0.0"
+  },
   "devDependencies": {
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "npm-force-resolutions": "0.0.3"
   }
 }

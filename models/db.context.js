@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 const config = require('./db.config');
 
 let db = {};
-let sequelize = new Sequelize(config.database, config.username, config.password, config.options);
+let sequelize = config;
 
 fs
    .readdirSync(__dirname + "/dataModels")
