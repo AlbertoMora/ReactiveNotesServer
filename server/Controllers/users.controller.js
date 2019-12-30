@@ -119,9 +119,47 @@ usersController.getUserById = async (req, res) => {
         });
 }
 usersController.updateUserById = async (req, res) => {
-    var userId = req.params.id;
+    const userId = req.params.id;
     const { name, surname, email, username, pass, img_uri } = req.body;
+    let values;
+    let fields;
+    if (pass) {
+        const hashed_password = await argon.hash(pass);
+        values = {
+            name,
+            surname,
+            email,
+            username,
+            hashed_password,
+            img_uri
+        };
+        fields = ['name', 'surname', 'email', 'username', 'hashed_password', 'img_uri'];
+    } else {
+        values = {
+            name,
+            surname,
+            email,
+            username,
+            img_uri
+        }
+        fields = ['name', 'surname', 'email', 'username', 'img_uri'];
+    }
 
+    dbContext.user.update(values,
+        {
+            fields,
+            where: { id: userId }
+        })
+        .then(result => {
+            res.status(200).json({ "status": "OK", "msg": "User has been updated successfully." })
+        })
+        .catch(err => {
+            res.status(500).json({
+                status: "ERROR",
+                errMsg: `An unexpected error has occurred. Please, contact our support team. Error Info: ${err}`,
+                errInfo: err
+            });
+        });
 }
 usersController.deleteUserById = (req, res) => {
     var userId = req.params.id;
