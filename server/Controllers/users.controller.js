@@ -1,4 +1,5 @@
 const dbContext = require('../../models/db.context');
+const argon = require('@phc/argon2');
 
 usersController = {}
 
@@ -18,37 +19,39 @@ usersController.getAllUsers = async (req, res) => {
             });
         });
 }
-usersController.login = (req, res) => {
+usersController.login = async (req, res) => {
     const { username, email, pass } = req.body;
-    var params = [];
-    var loginFunc = (field) => {
-        var sql = "SELECT id, hashed_password, acc_locked_until from users WHERE " + field + "=@" + field;
-        var val = field == "username" ? username : email;
-        connection.paramBuilder(params, field, TYPES.VarChar, val);
-        connection.query(sql, params, async (result) => {
-            if (result.length > 0) {
-                var check = await argon.verify(result[0].hashed_password, pass);
-                if (check === true) {
-                    params = [];
-                    sql = "SELECT name,surname,email,username,img_uri,acc_locked_until FROM users WHERE id=@id";
-                    connection.paramBuilder(params, "id", TYPES.Int, result[0].id);
-                    connection.query(sql, params, (r) => {
-                        res.json({ "status": "ok", "result": r });
-                    });
+
+    dbContext.user.findAll({
+        attributes: ['id', 'hashed_password', 'acc_locked_until'],
+        where: {
+            [Op.or]: [{ email: email }, { username: username }]
+        }
+    })
+        .then( async data => {
+            if (data.length > 0) {
+                const check = await argon.verify(data[0].hashed_password, pass)
+                if (check) {
+                    req.session.userId = data[0].id;
+                    res.status(200).json({ "statusMsg": "ok" }).redirect('/home');
                 } else {
-                    res.status(401).json({ "error": "Password doesn't match." });
+                    res.status(403).json({ "statusMsg": "Wrong login data" }).redirect('/users/login');
                 }
             } else {
-                res.status(401).json({ "error": "Username or Password doesn't match." });
+                res.status(403).json({ "statusMsg": "Wrong login data" }).redirect('/users/login');
             }
+        })
+        .catch(err => {
+            res.status(500).json({ "statusMsg": "An unexpected error has occurred. Please, contact our support team to get help." });
         });
-    }
-    if (username) {
-        loginFunc("username");
-    } else if (email) {
-        loginFunc("email");
-    } else {
-        res.status(500).json({ "error": "Invalid Format:Username or Email are required" });
+}
+
+usersController.logout = (req, res) => {
+    try {
+        res.session.destroy();
+        res.status(200).redirect('/users/login');
+    } catch (e) {
+        res.json({ "status": "failed", "errDet": e });
     }
 }
 
@@ -58,36 +61,35 @@ usersController.createNewUser = async (req, res) => {
 
     if (name && surname && email && pass && username) {
         if (checkEmail(email)) {
-            var params = [];
-            var hashed_password = await argon.hash(pass, argonOptions);
-            var date = new Date();
-            var today = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-            var sql = img_uri ? `INSERT INTO users(name,surname,email,username,hashed_password,sign_up_date,img_uri) 
-            VALUES(@name,@surname,@email,@username,@hashed_password,@sign_up_date,@img_uri);`
-                :
-                `INSERT INTO users(name,surname,email,username,hashed_password,sign_up_date) 
-                    VALUES(@name,@surname,@email,@username,@hashed_password,@sign_up_date);`;
-
-            connection.paramBuilder(params, "name", TYPES.VarChar, name);
-            connection.paramBuilder(params, "surname", TYPES.VarChar, surname);
-            connection.paramBuilder(params, "email", TYPES.VarChar, email);
-            connection.paramBuilder(params, "username", TYPES.VarChar, username);
-            connection.paramBuilder(params, "hashed_password", TYPES.VarChar, hashed_password);
-            connection.paramBuilder(params, "sign_up_date", TYPES.Date, today);
-            if (img_uri);
-            connection.paramBuilder(params, "img_uri", TYPES.VarChar, img_uri);
-            var callback = (result) => {
-                if (result && result.errorCode !== "EREQUEST") {
-                    res.json({ "status": "OK", "insertedId": result[0].id });
-                } else {
-                    res.status(500).json({
-                        "error": "Ups! There was an internal server error, please try later",
-                        "details": result
+            var hashed_password = await argon.hash(pass);
+            dbContext.user.create({
+                name: name,
+                surname: surname,
+                email: email,
+                username: username,
+                hashed_password: hashed_password,
+                sign_up_date: dbContext.sequelize.fn('GETDATE'),
+                acc_locked_until: null,
+                img_uri: img_uri,
+                salt: generateRandomSalt()
+            },
+                {
+                    fields: ['name','surname','email','username','hashed_password', 'sign_up_date', 'acc_locked_until', 'img_uri', 'salt']
+                })
+                .then(user => {
+                    res.status(200).json({
+                        "status":"OK",
+                        "userId": user.id
                     });
-                }
-            }
-            sql += " SELECT @@identity as id";
-            connection.query(sql, params, callback);
+                })
+                .catch(err => {
+                    res.status(500).json({
+                        status: "ERROR",
+                        errMsg: `An unexpected error has occurred. Please, contact our support team. Error Info: ${err}`,
+                        errInfo: err
+                    });
+                });
+
         } else {
             res.status(400).json({ "error": "Invalid Format: the email is not valid." });
         }
@@ -97,68 +99,28 @@ usersController.createNewUser = async (req, res) => {
 }
 usersController.getUserById = async (req, res) => {
     var userId = req.params.id;
-    var params = [];
-    var sql = `
-        SELECT name,surname,email,username,img_uri,acc_locked_until
-        FROM users
-        where id=@id
-    `;
-    connection.paramBuilder(params, 'id', TYPES.Int, userId);
-    connection.query(sql, params, (result) => {
-        if (result && result.errorCode !== "EREQUEST") {
-            res.json({ "status": "OK", "result": result });
-        } else {
-            res.status(500).json({
-                "error": "Ups! There was an internal server error, please try later",
-                "details": result
-            });
+    dbContext.user.findAll({
+        where: {
+            id: userId
         }
-    });
-
+    })
+        .then(data => {
+            res.json({
+                status: "OK",
+                data: data
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                status: "ERROR",
+                errMsg: `An unexpected error has occurred. Please, contact our support team. Error Info: ${err}`,
+                errInfo: err
+            });
+        });
 }
 usersController.updateUserById = async (req, res) => {
     var userId = req.params.id;
-    var params = [];
-    connection.paramBuilder(params, "id", TYPES.Int, userId);
-    var sql = "";
-    const { name, surname, email, username, pass } = req.body;
-    if (name && surname && email && username) {
-        if (checkEmail(email)) {
-            sql += `UPDATE users 
-                SET name=@name,
-                    surname=@surname,
-                    email=@email,
-                    username=@username
-                    `;
-            connection.paramBuilder(params, "name", TYPES.VarChar, name);
-            connection.paramBuilder(params, "surname", TYPES.VarChar, surname);
-            connection.paramBuilder(params, "email", TYPES.VarChar, email);
-            connection.paramBuilder(params, "username", TYPES.VarChar, username);
-        } else {
-            res.status(400).json({ "error": "Invalid Format: the email is not valid." });
-        }
-    } else {
-        res.status(400).json({ "error": "Invalid Format: Name, Surname, Email and Username are required" });
-    }
-
-    if (pass) {
-        hashed_password = argon.hash(pass, argonOptions);
-        sql += ", hashed_password=@hashed_password";
-        connection.paramBuilder(params, "name", TYPES.VarChar, hashed_password);
-    }
-    sql += " WHERE id=@id";
-    connection.paramBuilder(params, "id", TYPES.Int, userId);
-
-    connection.query(sql, params, (result) => {
-        if (result && result.errorCode !== "EREQUEST") {
-            res.json({ "status": "OK" });
-        } else {
-            res.status(500).json({
-                "error": "Ups! There was an internal server error, please try later",
-                "details": result
-            });
-        }
-    });
+    
 }
 usersController.deleteUserById = (req, res) => {
     var userId = req.params.id;
@@ -185,5 +147,13 @@ function checkEmail(email) {
     var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return regex.test(email);
 }
-
+function generateRandomSalt() {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (var i = 0; i < 30; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 module.exports = usersController;

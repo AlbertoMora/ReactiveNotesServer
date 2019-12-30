@@ -13,7 +13,7 @@ module.exports = (app, express) => {
         session({
             secret: process.env.SESSION_HASH,
             resave: false,
-            saveUninitialized: true,
+            saveUninitialized: false,
             store: new sequelizeStore({
                 db: dbContext.sequelize,
                 checkExpirationInterval: 15 * 60 * 1000,

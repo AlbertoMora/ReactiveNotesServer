@@ -12,6 +12,7 @@
   "author": "Alberto Mora",
   "license": "ISC",
   "dependencies": {
+    "@phc/argon2": "^1.0.9",
     "connect-session-sequelize": "^6.0.0",
     "consign": "^0.1.6",
     "dotenv": "^8.2.0",

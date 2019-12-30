@@ -4,7 +4,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             primaryKey: true
         },
-        userId: Sequelize.STRING,
+        userId: {
+            type: Sequelize.STRING,
+            notEmpty: true
+        },
         expires: Sequelize.DATE,
         data: Sequelize.STRING(50000)
     });
