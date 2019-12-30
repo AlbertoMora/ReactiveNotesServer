@@ -2,7 +2,7 @@
 # Edit at https://www.gitignore.io/?templates=node,react
 
 ### public data ###
-client/scripts/react-components/
+client/scripts/react-app/
 
 ### Node ###
 # Logs
