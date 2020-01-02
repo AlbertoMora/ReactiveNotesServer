@@ -1,21 +1,17 @@
 const { Router } = require('express');
 const router = Router();
-const authMiddleware = require('../../libs/auth.middleware');
+const AuthMiddleware = require('../Controllers/auth.controller');
 
-router.get('/home', authMiddleware, (req, res) => {
-    res.render('home/index', {title: 'Reactive Notes | Main Page'});
-});
-router.get('/stats', authMiddleware, (req, res) => {
-    res.render('home/index', {title: 'Reactive Notes | Statistics'});
-});
-router.get('/bin', authMiddleware, (req, res) => {
-    res.render('home/index', {title: 'Reactive Notes | Reclycle Bin'});
-});
-router.get('/news', authMiddleware, (req, res) => {
-    res.render('home/index', {title: 'Reactive Notes | News'});
-});
-router.get('/home/new-note', authMiddleware, (req, res) => {
-    res.render('home/index', {title: 'Reactive Notes | New Note'});
-});
+const appRender = (title) => {
+    return function (req, res) {
+        res.render('home/index', { title: `Reactive Notes | ${title}` });
+    }
+}
+
+router.get('/home', AuthMiddleware, appRender('Main Page'));
+router.get('/stats', AuthMiddleware, appRender('Statistics'));
+router.get('/bin', AuthMiddleware, appRender('Recycle Bin'));
+router.get('/news', AuthMiddleware, appRender('News'));
+router.get('/home/new-note', AuthMiddleware, appRender('New Note'));
 
 module.exports = router;

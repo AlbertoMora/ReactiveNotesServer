@@ -24,6 +24,9 @@ body {
     position: relative;
     overflow-x: hidden;
 }
+.login-page-container {
+    margin-top: 48.5px;
+}
 a:hover, a:focus, a:active {
     text-decoration: none;
 }
