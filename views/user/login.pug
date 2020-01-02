@@ -1,9 +1,98 @@
 extends ../shared/layout    
 
+block append styles
+    link(rel="stylesheet", href="/resources/css/login.css")
+
 block append content
-    p asdasd
-    .login-page-container
-        .login-form-container
+    .page-container
+        .page-wrapper
+            .login-page-container
+                
+                .row
+                    .offset-md-3.col-md-6
+                        .login-form-container
+                            .row
+                                .col-md-7
+
+                                .col-md-4.text-align-center
+                                    h2.login-header User Login
+                                    hr
+                                    form(action="/api/users/login", method="post")
+                                        .form-group
+                                            input.material-input(type='text' name='user' required='')
+                                            label.ianim-fade-inout(htmlfor='input')
+                                                i.i-user
+                                                |  Username or email
+                                        .form-group
+                                            input.material-input(type='password' name='pass' required='')
+                                            label.ianim-fade-inout(htmlfor='input')
+                                                i.i-lock
+                                                |  Password
+                                        button.material-button.bg-black
+                                            | Sign In
+                                        p.forgot-password-caption 
+                                            a(href="/user/recover_account") Did you forget your account / password?
+                                    hr
+                                    p.register-caption New to Reactive Notes?
+                                    a(href="/user/signup").material-button.bg-deep-blue
+                                            | Create an Account
+
+
+        
+        footer.footer.w-sidebar(style="width:100%;")
+            .row
+                .col-xs-12.col-md-4.text-align-center.text-md-align-left
+                    ul(style='list-style-type:none;padding:0;')
+                        li
+                        a.footer-link(href='/blog') Blog
+                        li
+                        a.footer-link(href='/premium')
+                            | Become a Premium 
+                            i.i-diamond.i-0x-7
+                            |  Member
+                        li
+                        a.footer-link(href='/social') Social Responsability
+                        li
+                        a.footer-link(href='/terms') Terms and Conditions
+                .col-xs-12.col-md-4.text-align-center.text-md-align-center
+                    ul(style='list-style-type:none;padding:0;')
+                        li
+                        a.footer-link(href='https://www.facebook.com/reactive-notes' target='_blank' rel='noopener noreferrer')
+                            i.i-fb
+                            |  Follow us on Facebook
+                        li
+                        a.footer-link(href='https://www.twitter.com/reactive-notes' target='_blank' rel='noopener noreferrer')
+                            i.i-twitter
+                            |  Follow us on Twitter
+                        li
+                        a.footer-link(href='https://www.instagram.com/reactive-notes' target='_blank' rel='noopener noreferrer')
+                            i.i-instagram
+                            |  Follow us on Instagram
+                        li
+                        a.footer-link(href='https://www.linkedin.com/reactive-notes' target='_blank' rel='noopener noreferrer')
+                            i.i-linkedin
+                            |  Follow us on LinkedIn
+                        li
+                        a.footer-link(href='https://www.github.com/AureSoft/reactive-notes' target='_blank' rel='noopener noreferrer')
+                            i.i-github
+                            |  Collaborate with the project
+                .col-xs-12.col-md-4.text-align-center.text-md-align-right(div='')
+                    ul(style='list-style-type:none;padding:0;')
+                        li
+                        a.footer-link(href='/jobs') Jobs
+                        li
+                        a.footer-link(href='/about') About Us
+                        li
+                        a.footer-link(href='/team') Our Team
+                        li
+                        a.footer-link(href='/contact') Contact Us
+            hr.sidebar-hr
+            .row
+                .col.text-align-center.text-white
+                    p.d-inline-block
+                        | Built with 
+                        i.i-heart.i-red.d-inline-block
+                        a(href='https://www.visitcostarica.com/en' target='_blank' rel='noopener noreferrer')  in Costa Rica.
 
 block append scripts 
        script(src="/scripts/react-components-dist/navbar.bundle.min.js")

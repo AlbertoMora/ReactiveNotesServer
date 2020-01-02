@@ -20,12 +20,12 @@ usersController.getAllUsers = async (req, res) => {
         });
 }
 usersController.login = async (req, res) => {
-    const { username, email, pass } = req.body;
+    const { user, pass } = req.body;
 
     dbContext.user.findAll({
         attributes: ['id', 'hashed_password', 'acc_locked_until'],
         where: {
-            [dbContext.Sequelize.Op.or]: [{ email: email?email:null }, { username: username?username:null }]
+            [dbContext.Sequelize.Op.or]: [{ email: user }, { username: user }]
         }
     })
         .then(async data => {
@@ -33,16 +33,16 @@ usersController.login = async (req, res) => {
                 const check = await argon.verify(data[0].hashed_password, pass)
                 if (check) {
                     req.session.userId = data[0].id;
-                    res.status(200).json({ "statusMsg": "ok" }).redirect('/home');
+                    res.redirect(200, '/home');
                 } else {
-                    res.status(403).json({ "statusMsg": "Wrong login data" }).redirect('/users/login');
+                    res.redirect(403, '/user/login');
                 }
             } else {
-                res.status(403).json({ "statusMsg": "Wrong login data" }).redirect('/users/login');
+                res.redirect(403, '/user/login');
             }
         })
         .catch(err => {
-            res.status(500).json({ "statusMsg": `An unexpected error has occurred. Please, contact our support team to get help. errDet: ${err}` });
+            res.redirect(500, '/user/login');
         });
 }
 
