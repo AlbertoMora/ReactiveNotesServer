@@ -33,12 +33,13 @@ usersController.login = async (req, res) => {
                 const check = await argon.verify(data[0].hashed_password, pass)
                 if (check) {
                     req.session.userId = data[0].id;
-                    res.redirect(200, '/home');
+                    req.session.save(req.session);
+                    res.status(200).json({"status":"ok", "msg":"login successful"});
                 } else {
-                    res.redirect(403, '/user/login');
+                    res.status(403).json({"status":"err", "msg":"Wrong user or password"});
                 }
             } else {
-                res.redirect(403, '/user/login');
+                res.status(403).json({"status":"err", "msg":"Wrong user or password"});
             }
         })
         .catch(err => {
