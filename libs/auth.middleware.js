@@ -1,4 +1,4 @@
-const dbContext = require('../../models/db.context');
+const dbContext = require('../models/db.context');
 
 module.exports = (req, res, next) => {
     const sessionId = req.session.id;

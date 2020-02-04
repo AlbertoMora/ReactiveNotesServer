@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-const AuthMiddleware = require('../Controllers/auth.controller');
+const AuthMiddleware = require('../../libs/auth.middleware');
 
 const appRender = (title) => {
     return function (req, res) {

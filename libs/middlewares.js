@@ -18,7 +18,7 @@ module.exports = (app, express) => {
                 db: dbContext.sequelize,
                 checkExpirationInterval: 15 * 60 * 1000,
                 expiration: 24 * 60 * 60 * 1000,
-                table: 'sessions',
+                table: 'session',
                 extendDefaultFields: extendDefaultFields
             })
         })
