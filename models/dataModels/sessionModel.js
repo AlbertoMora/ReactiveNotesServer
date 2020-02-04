@@ -1,5 +1,5 @@
-module.exports = (sequelize, Sequelize) => {
-    const session = sequelize.define('Session', {
+module.exports = function (sequelize, Sequelize) {
+    const session = sequelize.define('session', {
         sid: {
             type: Sequelize.STRING,
             primaryKey: true
