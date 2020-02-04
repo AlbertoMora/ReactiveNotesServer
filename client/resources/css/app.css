@@ -363,38 +363,47 @@ main {
 .bg-black {
     background-color: #000;
     color: #fff;
+    transition: all .5;
 }
 .bg-white {
     background-color: #fff;
     color: #000;
+    transition: all .5;
 }
 .bg-green {
     background-color: #2c991c;
     color: #fff;
+    transition: all .5;
 }
 .bg-blue {
     background-color: #2330ba;
     color: #fff;
+    transition: all .5;
 }
 .bg-deep-blue {
     background-color: #042e87;
     color: #fff;
+    transition: all .5;
 }
 .bg-deep-grey {
     background-color: #141414;
     color: #fff;
+    transition: all .5;
 }
 .bg-red {
     background-color: #9e203f;
     color: #fff;
+    transition: all .5;
 }
 .bg-orange {
     background-color: #c98c28;
     color: #fff;
+    transition: all .5;
 }
 .bg-purple {
     background-color: #5e26c7;
     color: #fff;
+    transition: all .5;
 }
 .editor-container{
     height: 100%;

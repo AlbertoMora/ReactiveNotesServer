@@ -1,7 +1,7 @@
 const morgan = require('morgan');
-const session = require('express-session');
-const sequelizeStore = require('connect-session-sequelize')(session.Store);
 const dbContext = require('../models/db.context');
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 module.exports = (app, express) => {
     //middlewares
@@ -13,12 +13,12 @@ module.exports = (app, express) => {
         session({
             secret: process.env.SESSION_HASH,
             resave: false,
-            saveUninitialized: false,
-            store: new sequelizeStore({
+            saveUninitialized: true,
+            store: new SequelizeStore({
                 db: dbContext.sequelize,
                 checkExpirationInterval: 15 * 60 * 1000,
                 expiration: 24 * 60 * 60 * 1000,
-                table: 'Session',
+                table: 'sessions',
                 extendDefaultFields: extendDefaultFields
             })
         })
