@@ -14,4 +14,5 @@ module.exports = (req, res, next) => {
         .catch(err => {
             res.redirect('/account/login');
         });
+    //next();
 };
